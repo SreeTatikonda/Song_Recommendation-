@@ -1,8 +1,8 @@
-# 🎵 MoodTune - AI-Powered Music Recommendation System
+# MoodTune - AI-Powered Music Recommendation System
 
 An intelligent music recommendation system that analyzes your mood through natural language and suggests perfect songs to match your emotional state.
 
-## ✨ Features
+## Features
 
 - **Advanced Mood Detection**: Analyzes text input using keyword matching and sentiment scoring
 - **9 Mood Categories**: Happy, Sad, Energetic, Calm, Romantic, Angry, Anxious, Nostalgic, Confident
@@ -11,7 +11,7 @@ An intelligent music recommendation system that analyzes your mood through natur
 - **RESTful API**: Clean API endpoints for easy integration
 - **Real-time Analysis**: Instant mood detection and song recommendations
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────┐
@@ -44,7 +44,7 @@ Optional:
 └─────────────────┘  - Preview URLs
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 mood-music-app/
@@ -56,7 +56,7 @@ mood-music-app/
 └── README.md              # This file
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Standalone Frontend (No Installation)
 
@@ -99,7 +99,7 @@ Server will start on `http://localhost:5000`
 
 Open `index.html` in your browser to use the full system.
 
-## 🎯 Usage Examples
+##  Usage Examples
 
 ### Using the Web Interface
 
@@ -151,21 +151,21 @@ for song in result['recommendations']:
     print(f"  • {song['title']} - {song['artist']}")
 ```
 
-## 🎨 Mood Categories
+##  Mood Categories
 
 The system detects 9 distinct moods:
 
-1. **Happy** 😊 - Upbeat, feel-good music
-2. **Sad** 😢 - Emotional, comforting songs
-3. **Energetic** ⚡ - High-energy workout tracks
-4. **Calm** 🧘 - Peaceful, relaxing melodies
-5. **Romantic** ❤️ - Love songs and tender ballads
-6. **Angry** 😤 - Intense, cathartic music
-7. **Anxious** 😰 - Soothing, reassuring tracks
-8. **Nostalgic** 🌟 - Classic throwback songs
-9. **Confident** 💪 - Empowering anthems
+1. **Happy**  - Upbeat, feel-good music
+2. **Sad**  - Emotional, comforting songs
+3. **Energetic**  - High-energy workout tracks
+4. **Calm**  - Peaceful, relaxing melodies
+5. **Romantic**  - Love songs and tender ballads
+6. **Angry**  - Intense, cathartic music
+7. **Anxious**  - Soothing, reassuring tracks
+8. **Nostalgic** - Classic throwback songs
+9. **Confident**  - Empowering anthems
 
-## 🔧 Advanced Configuration
+##  Advanced Configuration
 
 ### Spotify API Integration (Optional)
 
@@ -191,7 +191,7 @@ For real-time Spotify data and preview URLs:
    songs = spotify.get_recommendations('happy', limit=10)
    ```
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### `POST /analyze`
 
@@ -259,7 +259,7 @@ Get recommendations for a specific mood.
 }
 ```
 
-## 🎓 How It Works
+##  How It Works
 
 ### Mood Detection Algorithm
 
@@ -283,7 +283,7 @@ Get recommendations for a specific mood.
 3. **Ranking**: Return top-matched songs
 4. **Metadata**: Include artist, year, tags, and audio features
 
-## 🎯 Future Enhancements
+## Future Enhancements
 
 - [ ] User authentication and playlist saving
 - [ ] Machine learning model for better mood detection
@@ -295,7 +295,7 @@ Get recommendations for a specific mood.
 - [ ] Mood-based radio stations
 - [ ] Custom playlist generation
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Frontend:**
 - React 18
@@ -316,7 +316,7 @@ Get recommendations for a specific mood.
 - Comprehensive error handling
 - CORS enabled for cross-origin requests
 
-## 📝 Testing
+##  Testing
 
 Run the backend tests:
 
@@ -331,7 +331,7 @@ python spotify_integration.py
 python api_server.py
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Areas for improvement:
 
@@ -343,11 +343,11 @@ Contributions are welcome! Areas for improvement:
 6. Create Docker configuration
 7. Add database persistence
 
-## 📄 License
+## License
 
 This project is open source and available for educational purposes.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Spotify Web API for music data
 - HuggingFace for NLP inspiration
