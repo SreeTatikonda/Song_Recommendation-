@@ -1,0 +1,684 @@
+ven<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodTune - AI Music Recommendations</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-card: #1a1f3a;
+            --accent-primary: #ff6b9d;
+            --accent-secondary: #c44569;
+            --accent-tertiary: #feca57;
+            --text-primary: #e8eaf6;
+            --text-secondary: #9fa8da;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(254, 202, 87, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 40px;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .input-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 107, 157, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary));
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--accent-primary);
+        }
+
+        .mood-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 107, 157, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--text-primary);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .mood-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.2);
+        }
+
+        .mood-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .quick-moods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .mood-chip {
+            background: rgba(255, 107, 157, 0.1);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .mood-chip:hover {
+            background: rgba(255, 107, 157, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .analyze-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .mood-display {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 107, 157, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .detected-mood {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--accent-tertiary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mood-emoji {
+            font-size: 3rem;
+            animation: bounce 2s infinite;
+        }
+
+        .mood-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .song-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .song-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 107, 157, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-out both;
+        }
+
+        .song-card:nth-child(1) { animation-delay: 0.1s; }
+        .song-card:nth-child(2) { animation-delay: 0.2s; }
+        .song-card:nth-child(3) { animation-delay: 0.3s; }
+        .song-card:nth-child(4) { animation-delay: 0.4s; }
+        .song-card:nth-child(5) { animation-delay: 0.5s; }
+
+        .song-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-tertiary));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .song-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.2);
+        }
+
+        .song-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .album-art {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-info {
+            flex: 1;
+        }
+
+        .song-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .song-artist {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .song-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(254, 202, 87, 0.1);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--accent-tertiary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 107, 157, 0.2);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Emotion detection using text analysis
+        const detectMood = (text) => {
+            const lowerText = text.toLowerCase();
+            
+            // Emotion keywords mapping
+            const emotions = {
+                happy: ['happy', 'joy', 'excited', 'great', 'amazing', 'wonderful', 'cheerful', 'delighted', 'upbeat', 'energetic'],
+                sad: ['sad', 'depressed', 'down', 'lonely', 'heartbroken', 'melancholy', 'blue', 'gloomy', 'sorrowful'],
+                energetic: ['energetic', 'pumped', 'hyper', 'motivated', 'active', 'workout', 'run', 'exercise', 'power'],
+                calm: ['calm', 'peaceful', 'relax', 'chill', 'tranquil', 'serene', 'meditate', 'zen', 'quiet'],
+                romantic: ['love', 'romantic', 'romance', 'crush', 'date', 'valentine', 'relationship', 'tender'],
+                angry: ['angry', 'mad', 'furious', 'rage', 'frustrated', 'annoyed', 'upset', 'irritated'],
+                anxious: ['anxious', 'nervous', 'worried', 'stressed', 'tense', 'overwhelmed', 'panic'],
+                nostalgic: ['nostalgic', 'memories', 'remember', 'past', 'throwback', 'reminisce', 'old days'],
+                confident: ['confident', 'powerful', 'strong', 'boss', 'fierce', 'unstoppable', 'winning']
+            };
+
+            let scores = {};
+            
+            // Calculate scores for each emotion
+            Object.keys(emotions).forEach(emotion => {
+                scores[emotion] = 0;
+                emotions[emotion].forEach(keyword => {
+                    if (lowerText.includes(keyword)) {
+                        scores[emotion] += 1;
+                    }
+                });
+            });
+
+            // Find dominant emotion
+            let maxScore = 0;
+            let dominantMood = 'calm';
+            
+            Object.keys(scores).forEach(emotion => {
+                if (scores[emotion] > maxScore) {
+                    maxScore = scores[emotion];
+                    dominantMood = emotion;
+                }
+            });
+
+            return dominantMood;
+        };
+
+        // Song database with mood mappings
+        const songDatabase = {
+            happy: [
+                { title: "Good Vibrations", artist: "The Beach Boys", emoji: "🌊", tags: ["Classic", "Feel-good", "Upbeat"] },
+                { title: "Walking on Sunshine", artist: "Katrina and the Waves", emoji: "☀️", tags: ["80s", "Pop", "Energetic"] },
+                { title: "Happy", artist: "Pharrell Williams", emoji: "😊", tags: ["Pop", "Dance", "Positive"] },
+                { title: "Don't Stop Me Now", artist: "Queen", emoji: "🎸", tags: ["Rock", "Classic", "Powerful"] },
+                { title: "I Wanna Dance with Somebody", artist: "Whitney Houston", emoji: "💃", tags: ["Pop", "Dance", "80s"] }
+            ],
+            sad: [
+                { title: "Someone Like You", artist: "Adele", emoji: "💔", tags: ["Ballad", "Emotional", "Piano"] },
+                { title: "The Night We Met", artist: "Lord Huron", emoji: "🌙", tags: ["Indie", "Melancholic", "Acoustic"] },
+                { title: "Hurt", artist: "Johnny Cash", emoji: "🎻", tags: ["Country", "Deep", "Emotional"] },
+                { title: "Mad World", artist: "Gary Jules", emoji: "🌧️", tags: ["Alternative", "Somber", "Reflective"] },
+                { title: "Fix You", artist: "Coldplay", emoji: "🕊️", tags: ["Rock", "Healing", "Hope"] }
+            ],
+            energetic: [
+                { title: "Eye of the Tiger", artist: "Survivor", emoji: "🥊", tags: ["Rock", "Motivational", "80s"] },
+                { title: "Lose Yourself", artist: "Eminem", emoji: "🔥", tags: ["Hip-Hop", "Intense", "Powerful"] },
+                { title: "Thunderstruck", artist: "AC/DC", emoji: "⚡", tags: ["Rock", "High-energy", "Classic"] },
+                { title: "Till I Collapse", artist: "Eminem ft. Nate Dogg", emoji: "💪", tags: ["Hip-Hop", "Workout", "Intense"] },
+                { title: "Pump It", artist: "The Black Eyed Peas", emoji: "🎵", tags: ["Hip-Hop", "Dance", "Party"] }
+            ],
+            calm: [
+                { title: "Weightless", artist: "Marconi Union", emoji: "🧘", tags: ["Ambient", "Meditation", "Peaceful"] },
+                { title: "Clair de Lune", artist: "Claude Debussy", emoji: "🌙", tags: ["Classical", "Piano", "Serene"] },
+                { title: "Breathe Me", artist: "Sia", emoji: "🌸", tags: ["Ambient", "Gentle", "Soothing"] },
+                { title: "Holocene", artist: "Bon Iver", emoji: "🏔️", tags: ["Indie", "Atmospheric", "Calm"] },
+                { title: "Intro", artist: "The xx", emoji: "🌊", tags: ["Indie", "Minimal", "Dreamy"] }
+            ],
+            romantic: [
+                { title: "Perfect", artist: "Ed Sheeran", emoji: "❤️", tags: ["Pop", "Love", "Ballad"] },
+                { title: "All of Me", artist: "John Legend", emoji: "💕", tags: ["R&B", "Piano", "Tender"] },
+                { title: "Thinking Out Loud", artist: "Ed Sheeran", emoji: "💑", tags: ["Pop", "Romantic", "Sweet"] },
+                { title: "Can't Help Falling in Love", artist: "Elvis Presley", emoji: "🌹", tags: ["Classic", "Timeless", "Love"] },
+                { title: "At Last", artist: "Etta James", emoji: "💖", tags: ["Jazz", "Soulful", "Classic"] }
+            ],
+            angry: [
+                { title: "Break Stuff", artist: "Limp Bizkit", emoji: "😤", tags: ["Nu-Metal", "Aggressive", "Raw"] },
+                { title: "Killing in the Name", artist: "Rage Against the Machine", emoji: "🔥", tags: ["Rock", "Protest", "Intense"] },
+                { title: "In the End", artist: "Linkin Park", emoji: "⚡", tags: ["Rock", "Emotional", "Powerful"] },
+                { title: "Last Resort", artist: "Papa Roach", emoji: "💢", tags: ["Nu-Metal", "Intense", "Cathartic"] },
+                { title: "Bodies", artist: "Drowning Pool", emoji: "🤘", tags: ["Metal", "Aggressive", "Heavy"] }
+            ],
+            anxious: [
+                { title: "Breathe", artist: "Pink Floyd", emoji: "🌬️", tags: ["Rock", "Calming", "Progressive"] },
+                { title: "Stressed Out", artist: "Twenty One Pilots", emoji: "😰", tags: ["Alternative", "Relatable", "Modern"] },
+                { title: "Everybody Hurts", artist: "R.E.M.", emoji: "🫂", tags: ["Rock", "Comforting", "Supportive"] },
+                { title: "The Scientist", artist: "Coldplay", emoji: "🔬", tags: ["Alternative", "Reflective", "Soothing"] },
+                { title: "Let It Be", artist: "The Beatles", emoji: "☮️", tags: ["Classic", "Reassuring", "Peaceful"] }
+            ],
+            nostalgic: [
+                { title: "Summer of '69", artist: "Bryan Adams", emoji: "🎸", tags: ["Rock", "Classic", "Throwback"] },
+                { title: "Wonderwall", artist: "Oasis", emoji: "🌟", tags: ["Britpop", "90s", "Iconic"] },
+                { title: "Dream On", artist: "Aerosmith", emoji: "🎵", tags: ["Rock", "Classic", "Timeless"] },
+                { title: "Tears in Heaven", artist: "Eric Clapton", emoji: "🕊️", tags: ["Ballad", "Emotional", "Classic"] },
+                { title: "The Sound of Silence", artist: "Simon & Garfunkel", emoji: "🌙", tags: ["Folk", "60s", "Reflective"] }
+            ],
+            confident: [
+                { title: "Stronger", artist: "Kanye West", emoji: "💎", tags: ["Hip-Hop", "Powerful", "Motivational"] },
+                { title: "Roar", artist: "Katy Perry", emoji: "🦁", tags: ["Pop", "Empowering", "Uplifting"] },
+                { title: "We Will Rock You", artist: "Queen", emoji: "👑", tags: ["Rock", "Anthem", "Powerful"] },
+                { title: "Survivor", artist: "Destiny's Child", emoji: "🏆", tags: ["R&B", "Empowering", "Strong"] },
+                { title: "Lose Control", artist: "Meduza, Becky Hill", emoji: "🔥", tags: ["Dance", "Confident", "Energetic"] }
+            ]
+        };
+
+        const moodConfig = {
+            happy: {
+                emoji: "😊",
+                description: "You're feeling great! Time for some upbeat, feel-good tunes to match your energy.",
+                gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+            },
+            sad: {
+                emoji: "😢",
+                description: "It's okay to feel down. Here are some songs to help you process those emotions.",
+                gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            },
+            energetic: {
+                emoji: "⚡",
+                description: "You've got energy to burn! Let's amp it up with some high-octane tracks.",
+                gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
+            },
+            calm: {
+                emoji: "🧘",
+                description: "Time to unwind and find your zen with these peaceful, soothing sounds.",
+                gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
+            },
+            romantic: {
+                emoji: "❤️",
+                description: "Love is in the air! Here are some romantic melodies for those special moments.",
+                gradient: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
+            },
+            angry: {
+                emoji: "😤",
+                description: "Channel that intensity! These powerful tracks will help you release and transform that energy.",
+                gradient: "linear-gradient(135deg, #f43b47 0%, #453a94 100%)"
+            },
+            anxious: {
+                emoji: "😰",
+                description: "Feeling overwhelmed? Let these calming tracks help ease your mind.",
+                gradient: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)"
+            },
+            nostalgic: {
+                emoji: "🌟",
+                description: "Taking a trip down memory lane with timeless classics from days gone by.",
+                gradient: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
+            },
+            confident: {
+                emoji: "💪",
+                description: "You're unstoppable! These empowering anthems will fuel your confidence.",
+                gradient: "linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)"
+            }
+        };
+
+        function MoodTuneApp() {
+            const [userInput, setUserInput] = useState('');
+            const [detectedMood, setDetectedMood] = useState(null);
+            const [recommendations, setRecommendations] = useState([]);
+            const [isLoading, setIsLoading] = useState(false);
+
+            const quickMoods = [
+                "I'm feeling happy and energetic today!",
+                "Feeling a bit down and need some comfort",
+                "Need some workout music to pump me up",
+                "Want to relax and unwind",
+                "In the mood for some romance"
+            ];
+
+            const handleAnalyze = () => {
+                if (!userInput.trim()) return;
+
+                setIsLoading(true);
+                
+                // Simulate API delay for better UX
+                setTimeout(() => {
+                    const mood = detectMood(userInput);
+                    setDetectedMood(mood);
+                    setRecommendations(songDatabase[mood] || songDatabase.calm);
+                    setIsLoading(false);
+                }, 1500);
+            };
+
+            const handleQuickMood = (mood) => {
+                setUserInput(mood);
+            };
+
+            return (
+                <div className="app-container">
+                    <header className="header">
+                        <h1 className="logo">MoodTune</h1>
+                        <p className="tagline">AI-Powered Music for Your Mood</p>
+                    </header>
+
+                    <div className="main-content">
+                        <div className="input-section">
+                            <h2 className="section-title">How are you feeling?</h2>
+                            <textarea
+                                className="mood-input"
+                                placeholder="Tell me about your mood... Are you happy, sad, energetic, or something else?"
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                            />
+                            
+                            <div className="quick-moods">
+                                {quickMoods.map((mood, idx) => (
+                                    <button
+                                        key={idx}
+                                        className="mood-chip"
+                                        onClick={() => handleQuickMood(mood)}
+                                    >
+                                        {mood}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                className="analyze-btn"
+                                onClick={handleAnalyze}
+                                disabled={!userInput.trim() || isLoading}
+                            >
+                                {isLoading ? 'Analyzing...' : 'Find My Music'}
+                            </button>
+                        </div>
+
+                        <div className="results-section">
+                            {isLoading && (
+                                <div className="loading">
+                                    <div className="spinner"></div>
+                                    <p>Analyzing your mood and finding perfect songs...</p>
+                                </div>
+                            )}
+
+                            {!isLoading && detectedMood && (
+                                <>
+                                    <div className="mood-display">
+                                        <div className="detected-mood">
+                                            <span className="mood-emoji">{moodConfig[detectedMood].emoji}</span>
+                                            <span style={{ textTransform: 'capitalize' }}>{detectedMood}</span>
+                                        </div>
+                                        <p className="mood-description">
+                                            {moodConfig[detectedMood].description}
+                                        </p>
+                                    </div>
+
+                                    <div className="song-list">
+                                        {recommendations.map((song, idx) => (
+                                            <div key={idx} className="song-card">
+                                                <div className="album-art">
+                                                    {song.emoji}
+                                                </div>
+                                                <div className="song-info">
+                                                    <h3 className="song-title">{song.title}</h3>
+                                                    <p className="song-artist">{song.artist}</p>
+                                                    <div className="song-tags">
+                                                        {song.tags.map((tag, tagIdx) => (
+                                                            <span key={tagIdx} className="tag">{tag}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {!isLoading && !detectedMood && (
+                                <div className="loading">
+                                    <p>Share your mood and let AI find the perfect soundtrack for you ✨</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MoodTuneApp />);
+    </script>
+</body>
+</html>
