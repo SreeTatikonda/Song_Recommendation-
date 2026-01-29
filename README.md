@@ -356,6 +356,6 @@ This project is open source and available for educational purposes.
 
 ---
 
-**Built with ❤️ by Yashu**
+**Built by Yashu**
 
 *Making music discovery emotional and intelligent.*
